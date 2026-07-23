@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Book {
+  id            Int      @id @default(autoincrement())
+  title         String   @unique
+  finish_status String?
+  author        String?
+  gender        String?
+  male_lead     String?
+  female_lead   String?
+  tags          String[]
+  detailed_plot String?
+  source_link   String?
+  male_lead_traits  String?
+  female_lead_traits String?
+  plot_summary      String[]
+  highlight_quote   String[]
+  plot_stage        String[]
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("books")
+}

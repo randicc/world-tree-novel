@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  /// 自增主键
+  id                 Int      @id @default(autoincrement())
+  /// 书名，对应 Coze 输出中的 title
+  title              String   @unique
+  /// 完结状态，例如：完结 / 连载 / 未知
+  finish_status      String?
+  /// 作者名
+  author             String?
+  /// 作品频道，例如：男频 / 女频
+  gender             String?
+  /// 男主名称
+  male_lead          String?
+  /// 女主名称
+  female_lead        String?
+  /// 标签数组，例如： ["GB", "甜宠", "轻松向"]
+  tags               String[]
+  /// 全书详细剧情，适合存储 5k-8k 字长文本
+  detailed_plot      String?
+  /// 原始来源链接
+  source_link        String?
+  /// 男主特征描述
+  male_lead_traits   String?
+  /// 女主特征描述
+  female_lead_traits String?
+  /// 剧情摘要数组
+  plot_summary       String[]
+  /// 高光摘录数组
+  highlight_quote    String[]
+  /// 剧情阶段数组，例如： ["开局", "转折"]
+  plot_stage         String[]
+  /// 创建时间
+  created_at         DateTime @default(now())
+  /// 更新时间
+  updated_at         DateTime @updatedAt
+
+  @@map("books")
+}
