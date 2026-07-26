@@ -33,8 +33,8 @@ function StoryCover({ type }: { type: Novel['cover'] }) {
 function FlippingNovel({ novel }: { novel: Novel }) {
   const [flipped, setFlipped] = useState(false)
   return (
-    <div className="story-perspective w-full max-w-xs justify-self-center lg:max-w-none">
-      <motion.button type="button" onClick={() => setFlipped((value) => !value)} animate={{ rotateY: flipped ? 180 : 0 }} transition={{ type: 'spring', stiffness: 95, damping: 16 }} className="story-card relative block aspect-[4/5.8] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring" aria-label={`${novel.title}，点击${flipped ? '查看封面' : '翻转阅读书评'}`}>
+    <div className="story-perspective h-full w-full max-w-xs justify-self-center lg:max-w-none">
+      <motion.button type="button" onClick={() => setFlipped((value) => !value)} animate={{ rotateY: flipped ? 180 : 0 }} transition={{ type: 'spring', stiffness: 95, damping: 16 }} className="story-card relative block h-full w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring" aria-label={`${novel.title}，点击${flipped ? '查看封面' : '翻转阅读书评'}`}>
         <article className="sketch-card story-face absolute inset-0 flex flex-col bg-card p-3 shadow-xl">
           <span className="match-seal absolute right-0 top-2 z-10 flex size-20 rotate-6 items-center justify-center rounded-full border-2 border-dashed border-destructive bg-card/90 px-2 text-center font-serif text-xs font-bold text-destructive shadow-md">匹配度<br />{novel.match}%</span>
           <div className="min-h-0 flex-1 overflow-hidden border-2 border-primary/40 bg-secondary"><StoryCover type={novel.cover} /></div>
@@ -63,7 +63,7 @@ export function NovelResults({ query, novels, onBack, onMatchNovel }: NovelResul
   }
 
   return (
-    <main className="results-paper paper-texture relative min-h-svh overflow-x-hidden bg-background text-foreground">
+    <main className="results-paper paper-texture relative h-svh overflow-hidden bg-background text-foreground">
       <FloatingLeaves />
       <header className="sticky top-0 z-30 border-b border-primary/25 bg-card/80 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-8">
@@ -80,17 +80,27 @@ export function NovelResults({ query, novels, onBack, onMatchNovel }: NovelResul
         </motion.div>
       </header>
 
-      <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-10 md:px-8 md:pt-16">
-        <div className="mb-12 flex flex-col gap-2 text-center"><p className="text-xs tracking-[.35em] text-primary">听风寻书 · {novels.length} 片落叶</p><h1 className="text-balance font-serif text-3xl md:text-5xl">“{query || '随风而来的故事'}”</h1><p className="text-sm text-muted-foreground">轻触左侧书页，听听风藏在背后的真话</p></div>
-        <div className="flex flex-col gap-20 md:gap-28">
-          {novels.map((novel, index) => (
-            <section key={novel.id} className="grid items-center gap-7 md:grid-cols-[minmax(220px,30%)_1fr] md:gap-12" aria-label={`${novel.title}搜索结果`}>
-              <motion.div initial={{ opacity: 0, y: 48, rotate: -1 }} whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 1 : -1 }} viewport={{ once: true, amount: .25 }} transition={{ duration: .7, ease: 'easeOut' }}><FlippingNovel novel={novel} /></motion.div>
-              <motion.article initial={{ opacity: 0, y: 55, x: 12 }} whileInView={{ opacity: 1, y: 0, x: 0 }} viewport={{ once: true, amount: .25 }} transition={{ duration: .75, delay: .14, ease: 'easeOut' }} className="letter-paper relative p-7 shadow-xl md:p-10">
-                <Search className="mb-5 size-5 text-primary/60" aria-hidden="true" /><p className="mb-3 font-serif text-sm tracking-[.25em] text-primary">剧情脉络 · {novel.vibe}</p><p className="font-serif text-lg leading-[2] text-foreground md:text-xl">{novel.summary}</p><div className="mt-7 flex flex-wrap items-center justify-between gap-4 text-xs italic text-muted-foreground"><span className="min-w-28 flex-1 border-t border-primary/25 pt-2">风在这里认出了你的低语</span><button type="button" onClick={() => onMatchNovel(novel)} className="vine-button rounded-full border border-dashed border-primary/45 bg-secondary/55 px-5 py-2 font-serif not-italic text-primary transition hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">匹配剧情 →</button></div>
-              </motion.article>
-            </section>
-          ))}
+      <div className="relative mx-auto flex h-[calc(100svh-73px)] max-w-6xl flex-col px-5 pb-10 pt-10 md:px-8 md:pt-16">
+        <div className="mb-10 flex shrink-0 flex-col gap-2 text-center md:mb-12"><p className="text-xs tracking-[.35em] text-primary">听风寻书 · {novels.length} 片落叶</p><h1 className="text-balance font-serif text-3xl md:text-5xl">“{query || '随风而来的故事'}”</h1><p className="text-sm text-muted-foreground">轻触左侧书页，听听风藏在背后的真话</p></div>
+        <div className="min-h-0 flex-1 overflow-y-auto pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [scroll-snap-type:y_proximity] [&::-webkit-scrollbar]:hidden md:pr-2">
+          <div className="flex flex-col gap-4 pb-4 md:gap-5 md:pb-5">
+            {novels.map((novel, index) => (
+              <section
+                key={novel.id}
+                className="grid items-center gap-5 [scroll-snap-align:start] md:grid-cols-[minmax(220px,30%)_1fr] md:gap-8"
+                style={{ minHeight: 'calc((100% - 0.5rem * 2) / 3)' }}
+                aria-label={`${novel.title}搜索结果`}
+              >
+                <motion.div initial={{ opacity: 0, y: 48, rotate: -1 }} whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 1 : -1 }} viewport={{ once: true, amount: .25 }} transition={{ duration: .7, ease: 'easeOut' }} className="h-full"><FlippingNovel novel={novel} /></motion.div>
+                <motion.article initial={{ opacity: 0, y: 55, x: 12 }} whileInView={{ opacity: 1, y: 0, x: 0 }} viewport={{ once: true, amount: .25 }} transition={{ duration: .75, delay: .14, ease: 'easeOut' }} className="letter-paper relative flex h-full min-h-0 flex-col overflow-hidden p-6 shadow-xl md:p-8">
+                  <Search className="mb-4 size-5 shrink-0 text-primary/60" aria-hidden="true" />
+                  <p className="mb-2 shrink-0 font-serif text-sm tracking-[.25em] text-primary">剧情脉络 · {novel.vibe}</p>
+                  <p className="min-h-0 flex-1 overflow-hidden font-serif text-base leading-[1.9] text-foreground md:text-lg">{novel.summary}</p>
+                  <div className="mt-5 flex shrink-0 flex-wrap items-center justify-between gap-4 text-xs italic text-muted-foreground"><span className="min-w-28 flex-1 border-t border-primary/25 pt-2">风在这里认出了你的低语</span><button type="button" onClick={() => onMatchNovel(novel)} className="vine-button rounded-full border border-dashed border-primary/45 bg-secondary/55 px-5 py-2 font-serif not-italic text-primary transition hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">匹配剧情 →</button></div>
+                </motion.article>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     </main>

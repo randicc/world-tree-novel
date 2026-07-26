@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { BookOpen, Leaf, LoaderCircle, LogIn, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -9,8 +9,9 @@ import { NovelResults } from '@/components/novel-results'
 import { NovelMatchDetail } from '@/components/novel-match-detail'
 import { LeafCollection } from '@/components/leaf-collection'
 import { LoginDialog } from '@/components/login-dialog'
+import { supabase } from '@/lib/supabase-client'
 
-const vibes = ['想要一场大雨中的重逢', '带点疯批的救赎之旅', '深夜里温暖的柴火声']
+const vibes = ['生命早已完成融化冻土', '带点疯批的救赎之旅', '深夜里温暖的柴火声']
 
 function TwigLogo() {
   return (
@@ -29,6 +30,7 @@ export function NovelFinder() {
   const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null)
   const [showCollection, setShowCollection] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -55,6 +57,15 @@ export function NovelFinder() {
   async function handleFeedback(novel: Novel, helpful: boolean) {
     await submitFeedback({ novelId: novel.id, query, helpful })
   }
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null)
+    })
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+  }, [])
 
   if (showCollection) {
     return (
@@ -108,9 +119,15 @@ export function NovelFinder() {
       <Button variant="ghost" onClick={() => setShowCollection(true)} className="leaf-nav h-10 rounded-full border border-white/25 bg-white/10 px-4 font-normal text-primary shadow-sm backdrop-blur-md hover:bg-white/20">
       <BookOpen data-icon="inline-start" />拾叶
       </Button>
-      <Button variant="ghost" onClick={() => setShowLogin(true)} className="leaf-nav h-10 rounded-full border border-white/25 bg-white/10 px-4 font-normal text-primary shadow-sm backdrop-blur-md hover:bg-white/20">
-      <LogIn data-icon="inline-start" />叩林
-      </Button>
+      {user ? (
+        <Button variant="ghost" onClick={async () => { await supabase.auth.signOut(); setUser(null) }} className="leaf-nav h-10 rounded-full border border-white/25 bg-white/10 px-4 font-normal text-primary shadow-sm backdrop-blur-md hover:bg-white/20">
+        <LogIn data-icon="inline-start" />退出
+        </Button>
+      ) : (
+        <Button variant="ghost" onClick={() => setShowLogin(true)} className="leaf-nav h-10 rounded-full border border-white/25 bg-white/10 px-4 font-normal text-primary shadow-sm backdrop-blur-md hover:bg-white/20">
+        <LogIn data-icon="inline-start" />叩林
+        </Button>
+      )}
     </nav>
   </header>
 
@@ -149,7 +166,7 @@ export function NovelFinder() {
         </footer>
       </section>
     </main>
-    {showLogin && <LoginDialog onClose={() => setShowLogin(false)} />}
+    {showLogin && <LoginDialog onClose={() => setShowLogin(false)} onLoginSuccess={() => setShowLogin(false)} />}
     </>
   )
 }
