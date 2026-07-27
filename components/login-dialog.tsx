@@ -41,27 +41,24 @@ export function LoginDialog({ onClose, onLoginSuccess }: LoginDialogProps) {
 
         if (signInError) throw signInError
       } else {
-        const { error: regError } = await supabase.auth.signUp({
-          email: username.trim(),
-          password,
-        })
-        if (regError) {
-          setError(regError.message)
-          return
-        }
-
-        await fetch('/api/confirm-user', {
+        const regRes = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: username.trim() }),
+          body: JSON.stringify({ email: username.trim(), password }),
         })
+        const regData = await regRes.json()
+
+        if (!regRes.ok || regData.error) {
+          setError(regData.error || '注册失败')
+          return
+        }
 
         const { error: loginError } = await supabase.auth.signInWithPassword({
           email: username.trim(),
           password,
         })
         if (loginError) {
-          setError('注册成功，请稍后手动登录')
+          setError('注册成功，请登录')
           setMode('login')
           return
         }
