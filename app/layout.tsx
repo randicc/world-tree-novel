@@ -7,8 +7,15 @@ const sans = Noto_Sans_SC({ subsets: ['latin'], variable: '--font-body' })
 const serif = Noto_Serif_SC({ subsets: ['latin'], variable: '--font-story' })
 
 export const metadata: Metadata = {
-  title: '听风寻叶｜在世界树下找一本小说',
-  description: '告诉风你想做怎样的梦，让世界树为你吹落那一页恰好的故事。',
+  title: "听风寻叶",
+  description: "告诉风你想做怎样的梦，让世界树为你吹落那一页恰好的故事。",
+  manifest: "/manifest.json",
+  themeColor: "#4a7c5f",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "听风寻叶",
+  },
 }
 
 export const viewport: Viewport = {
