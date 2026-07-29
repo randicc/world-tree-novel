@@ -1,0 +1,16 @@
+{
+  "name": "听风寻叶",
+  "short_name": "寻叶",
+  "description": "把模糊的心事交给风，让它为你找到那一页恰好的故事",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e8dcc8",
+  "theme_color": "#4a7c5f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

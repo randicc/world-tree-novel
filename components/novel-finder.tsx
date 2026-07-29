@@ -11,7 +11,7 @@ import { LeafCollection } from '@/components/leaf-collection'
 import { LoginDialog } from '@/components/login-dialog'
 import { supabase } from '@/lib/supabase-client'
 
-const vibes = ['生命早已完成融化冻土', '带点疯批的救赎之旅', '深夜里温暖的柴火声']
+const vibes = ['生命早已完成融化冻土', '正式和我谈恋爱吧！', '深夜里温暖的柴火声']
 
 function TwigLogo() {
   return (
