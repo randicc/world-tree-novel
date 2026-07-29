@@ -23,6 +23,11 @@ function mapCover(tags: string[]): 'rain' | 'forest' | 'fire' {
 }
 
 // ====== 数据库数据 → 前端 Novel 格式 ======
+function truncateText(text: string, maxLength: number) {
+  if (!text) return ''
+  return text.length > maxLength ? `${text.slice(0, maxLength)}……` : text
+}
+
 function mapBookToNovel(book: any, intentType: 'A' | 'B'): Novel {
   let plotData: any = null
   try {
@@ -31,11 +36,14 @@ function mapBookToNovel(book: any, intentType: 'A' | 'B'): Novel {
   } catch {}
 
   const plotSlices = plotData?.plot_info?.plot_slices ?? []
-  const summary = plotSlices[0]?.plot_summary ?? (book.plot_summary?.slice(0, 2).join('') ?? '')
-  const review = book.highlight_quote?.[0] ?? plotSlices[0]?.highlight_quote ?? ''
+  const firstSlice = plotSlices[0]
+  const summary = truncateText(firstSlice?.plot_summary ?? '', 120)
+  const review = book.highlight_quote?.[0] ?? firstSlice?.highlight_quote ?? ''
   const vibe = book.tags?.slice(0, 2).join(' · ') ?? ''
   const deepMatch = plotSlices.length > 0
-    ? plotSlices.map((s: any) => s.plot_stage ? `【${s.plot_stage}】${s.plot_summary}` : s.plot_summary).join('\n\n')
+    ? plotSlices
+        .map((s: any) => `${s?.plot_stage ? `【${s.plot_stage}】` : ''}${s?.plot_summary ?? ''}`)
+        .join('\n\n')
     : (book.plot_summary?.join('\n\n') ?? book.detailed_plot ?? '')
   const match = intentType === 'A' ? 92 : 88
   const cover = mapCover(book.tags ?? [])

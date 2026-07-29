@@ -1,7 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { ArrowLeft, BookMarked } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowLeft, BookMarked, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import type { Novel } from '@/lib/novels'
 
 // 9本占位书数据
@@ -17,7 +18,6 @@ const placeholderBooks: Novel[] = [
   { id: '9', title: '雪中灯火', author: '半盏', vibe: '寒冬 · 暖意', match: 83, cover: 'forest', summary: '大雪封山那夜，远处亮起一盏不肯熄灭的灯。', review: '灯不是给路人照的，是给自己留的。', deepMatch: '', portals: {} },
 ]
 
-// 简化版书封面（适配九宫格小卡片）
 function MiniCover({ type }: { type: Novel['cover'] }) {
   const fills = type === 'rain' ? 'var(--stream)' : type === 'fire' ? 'var(--glow)' : 'var(--secondary)'
   const detail = type === 'rain' ? 'var(--primary)' : type === 'fire' ? 'var(--door)' : 'var(--accent)'
@@ -39,12 +39,24 @@ type LeafCollectionProps = {
 }
 
 export function LeafCollection({ onBack }: LeafCollectionProps) {
-  const books = placeholderBooks // 后续改为从收藏 API 获取
+  const books = placeholderBooks
+  const pageSize = 6
+  const totalPages = Math.max(1, Math.ceil(books.length / pageSize))
+  const [page, setPage] = useState(0)
+  const [direction, setDirection] = useState(1)
+
+  const pageBooks = useMemo(() => books.slice(page * pageSize, (page + 1) * pageSize), [books, page])
+  const slots = useMemo(() => Array.from({ length: pageSize }, (_, index) => pageBooks[index] ?? null), [pageBooks])
+
+  function goToPage(nextPage: number) {
+    if (nextPage < 0 || nextPage >= totalPages) return
+    setDirection(nextPage > page ? 1 : -1)
+    setPage(nextPage)
+  }
 
   return (
-    <main className="paper-texture relative min-h-svh overflow-x-hidden bg-background text-foreground">
-      {/* 头部 */}
-      <header className="sticky top-0 z-30 border-b border-primary/25 bg-card/80 shadow-sm backdrop-blur-md">
+    <main className="paper-texture relative flex min-h-svh flex-col overflow-hidden bg-background text-foreground">
+      <header className="border-b border-primary/25 bg-card/80 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-8">
           <button onClick={onBack} className="flex min-w-0 items-center gap-3 text-left">
             <ArrowLeft className="size-5 text-primary" />
@@ -55,41 +67,81 @@ export function LeafCollection({ onBack }: LeafCollectionProps) {
         </div>
       </header>
 
-      {/* 页面标题 */}
-      <div className="mx-auto max-w-6xl px-5 pt-10 pb-4 text-center md:px-8 md:pt-16">
-        <p className="text-xs tracking-[.35em] text-primary">你拾起的每一片叶</p>
-        <h1 className="mt-2 font-serif text-2xl md:text-4xl">藏在枝桠间的书签</h1>
-      </div>
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-4 md:px-8 md:py-5">
+        <div className="shrink-0 text-center">
+          <p className="text-xs tracking-[.35em] text-primary">你拾起的每一片叶</p>
+          <h1 className="mt-1 font-serif text-2xl md:text-[2.15rem]">藏在枝桠间的书签</h1>
+        </div>
 
-      {/* 九宫格 */}
-      <div className="mx-auto max-w-6xl px-5 pb-24 md:px-8">
-        <div className="grid grid-cols-3 gap-4 md:gap-6">
-          {books.map((book, index) => (
+        <div className="mt-3 flex shrink-0 items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => goToPage(page - 1)}
+            disabled={page === 0}
+            className="inline-flex items-center gap-2 rounded-full border border-dashed border-primary/45 bg-secondary/55 px-4 py-2 text-sm text-primary shadow-sm transition hover:bg-secondary/75 disabled:pointer-events-none disabled:opacity-40"
+          >
+            <ChevronLeft className="size-4" />
+            上一页
+          </button>
+          <span className="font-serif text-sm tracking-widest text-primary/80">
+            {page + 1}/{totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => goToPage(page + 1)}
+            disabled={page === totalPages - 1}
+            className="inline-flex items-center gap-2 rounded-full border border-dashed border-primary/45 bg-secondary/55 px-4 py-2 text-sm text-primary shadow-sm transition hover:bg-secondary/75 disabled:pointer-events-none disabled:opacity-40"
+          >
+            下一页
+            <ChevronRight className="size-4" />
+          </button>
+        </div>
+
+        <div className="mt-3 flex min-h-0 flex-1 items-stretch justify-center pb-1">
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
-              key={book.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.06 }}
-              className="group flex flex-col overflow-hidden rounded-xl border border-primary/30 bg-card shadow-md transition hover:-translate-y-1 hover:shadow-lg"
+              key={page}
+              custom={direction}
+              initial={{ opacity: 0, x: direction > 0 ? 80 : -80 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: direction > 0 ? -80 : 80 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="grid h-full w-full max-w-6xl grid-cols-3 gap-3 md:gap-4"
             >
-              {/* 封面 */}
-              <div className="aspect-[3/4] border-b border-primary/20 bg-secondary/40 overflow-hidden">
-                <MiniCover type={book.cover} />
-              </div>
-              {/* 信息 */}
-              <div className="flex flex-col gap-0.5 px-3 py-2 text-center">
-                <h3 className="font-serif text-sm font-semibold leading-tight md:text-base">{book.title}</h3>
-                <p className="text-xs italic text-muted-foreground">{book.author}</p>
-                <p className="text-[10px] tracking-wider text-primary/60">{book.vibe}</p>
-              </div>
+              {slots.map((book, index) =>
+                book ? (
+                  <motion.div
+                    key={book.id}
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.04 }}
+                    className="group flex min-h-0 flex-col overflow-hidden rounded-xl border border-primary/30 bg-card shadow-md transition hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    <div className="aspect-[3/4] max-h-[18vh] overflow-hidden border-b border-primary/20 bg-secondary/40 md:max-h-[20vh]">
+                      <MiniCover type={book.cover} />
+                    </div>
+                    <div className="flex flex-1 min-h-0 flex-col justify-center gap-0.5 px-2 py-1.5 text-center md:px-3 md:py-2">
+                      <h3 className="font-serif text-sm font-semibold leading-tight">{book.title}</h3>
+                      <p className="text-xs italic text-muted-foreground">{book.author}</p>
+                      <p className="text-[10px] tracking-wider text-primary/60">{book.vibe}</p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`empty-${page}-${index}`}
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.04 }}
+                    className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-primary/30 bg-card shadow-md"
+                  >
+                    <Plus className="size-8 text-primary/55 md:size-10" />
+                  </motion.div>
+                ),
+              )}
             </motion.div>
-          ))}
+          </AnimatePresence>
         </div>
       </div>
-
-      <footer className="pb-8 text-center text-xs tracking-widest text-foreground/60">
-        <p>每一本书，都是世界树上飘落的一页。</p>
-      </footer>
     </main>
   )
 }

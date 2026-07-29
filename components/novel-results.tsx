@@ -82,17 +82,17 @@ export function NovelResults({ query, novels, onBack, onMatchNovel }: NovelResul
 
       <div className="relative mx-auto flex h-[calc(100svh-73px)] max-w-6xl flex-col px-5 pb-10 pt-10 md:px-8 md:pt-16">
         <div className="mb-10 flex shrink-0 flex-col gap-2 text-center md:mb-12"><p className="text-xs tracking-[.35em] text-primary">听风寻书 · {novels.length} 片落叶</p><h1 className="text-balance font-serif text-3xl md:text-5xl">“{query || '随风而来的故事'}”</h1><p className="text-sm text-muted-foreground">轻触左侧书页，听听风藏在背后的真话</p></div>
-        <div className="min-h-0 flex-1 overflow-y-auto pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [scroll-snap-type:y_proximity] [&::-webkit-scrollbar]:hidden md:pr-2">
+        <div className="min-h-0 flex-1 overflow-hidden pr-1 md:pr-2">
           <div className="flex flex-col gap-4 pb-4 md:gap-5 md:pb-5">
             {novels.map((novel, index) => (
               <section
                 key={novel.id}
-                className="grid items-center gap-5 [scroll-snap-align:start] md:grid-cols-[minmax(220px,30%)_1fr] md:gap-8"
+                className="grid items-center gap-5 md:grid-cols-[minmax(220px,30%)_1fr] md:gap-8"
                 style={{ minHeight: 'calc((100% - 0.5rem * 2) / 3)' }}
                 aria-label={`${novel.title}搜索结果`}
               >
-                <motion.div initial={{ opacity: 0, y: 48, rotate: -1 }} whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 1 : -1 }} viewport={{ once: true, amount: .25 }} transition={{ duration: .7, ease: 'easeOut' }} className="h-full"><FlippingNovel novel={novel} /></motion.div>
-                <motion.article initial={{ opacity: 0, y: 55, x: 12 }} whileInView={{ opacity: 1, y: 0, x: 0 }} viewport={{ once: true, amount: .25 }} transition={{ duration: .75, delay: .14, ease: 'easeOut' }} className="letter-paper relative flex h-full min-h-0 flex-col overflow-hidden p-6 shadow-xl md:p-8">
+                <motion.div initial={{ opacity: 1, y: 0, rotate: index % 2 ? 1 : -1 }} animate={{ opacity: 1, y: 0, rotate: index % 2 ? 1 : -1 }} transition={{ duration: 0 }} className="h-full"><FlippingNovel novel={novel} /></motion.div>
+                <motion.article initial={{ opacity: 1, y: 0, x: 0 }} animate={{ opacity: 1, y: 0, x: 0 }} transition={{ duration: 0 }} className="letter-paper relative flex h-full min-h-0 flex-col overflow-hidden p-6 shadow-xl md:p-8">
                   <Search className="mb-4 size-5 shrink-0 text-primary/60" aria-hidden="true" />
                   <p className="mb-2 shrink-0 font-serif text-sm tracking-[.25em] text-primary">剧情脉络 · {novel.vibe}</p>
                   <p className="min-h-0 flex-1 overflow-hidden font-serif text-base leading-[1.9] text-foreground md:text-lg">{novel.summary}</p>

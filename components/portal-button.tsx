@@ -16,12 +16,12 @@ export type PortalButtonProps = {
 }
 
 export function PortalButton({ title, subtitle, mark, href, tone, onClick, className }: PortalButtonProps) {
-  const plankClass = `portal-plank portal-${tone} group flex min-h-32 flex-col items-center justify-center gap-2 px-2 py-5 text-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring md:min-h-40 ${className ?? ''}`
+  const plankClass = `portal-plank portal-${tone} group flex min-h-16 flex-col items-center justify-center gap-1 px-2 py-2 text-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring md:min-h-20 ${className ?? ''}`
   const content = (
     <>
-      <span className="font-serif text-base font-bold md:text-xl">{title}</span>
-      <span className="text-xs text-muted-foreground">{subtitle}</span>
-      <span className="font-serif text-lg opacity-65">{mark}</span>
+      <span className="font-serif text-sm font-bold md:text-sm">{title}</span>
+      <span className="text-[10px] text-muted-foreground">{subtitle}</span>
+      <span className="font-serif text-xs opacity-65">{mark}</span>
       {href && <ExternalLink className="size-3 opacity-0 transition-opacity group-hover:opacity-60" aria-hidden="true" />}
     </>
   )
